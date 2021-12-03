@@ -47,6 +47,8 @@ dependencies:
 
   #Thư viện hiệu ứng cho button 
   shimmer:
+  # Thư viện hiệu ứng Gadiant cho appbar
+  new_gradient_app_bar: ^0.2.0
 
 dev_dependencies:
   flutter_test:

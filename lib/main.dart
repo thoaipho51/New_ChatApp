@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:new_chat/resources/firebase_store.dart';
 import 'package:new_chat/screens/home_screen.dart';
 import 'package:new_chat/screens/login_screen.dart';
+import 'package:new_chat/screens/search_screen.dart';
 
 
 void main() => runApp(MyApp());
@@ -25,6 +26,10 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: "New_Chat",
       debugShowCheckedModeBanner: false,
+      initialRoute: '/',
+      routes: {
+        '/search_screen': (context) => SearchScreen(),
+      },
       home: FutureBuilder(
         future: _repository.getCurrentUser(),
         builder: (context, AsyncSnapshot<FirebaseUser> snapshot) {
