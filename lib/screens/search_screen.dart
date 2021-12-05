@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:new_chat/models/user.dart';
 import 'package:new_chat/resources/firebase_store.dart';
+import 'package:new_chat/screens/chat_s/chatscreen.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:new_chat/utils/universal_variables.dart';
@@ -109,7 +110,16 @@ class _SearchScreenState extends State<SearchScreen> {
 
         return CustomTile(
           mini: false,
-          onTap: () {},
+          onTap: () {
+
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ChatScreen(
+                          receiver: searchedUser,
+                        )));
+                        
+          },
           leading: CircleAvatar(
             backgroundImage: NetworkImage(searchedUser.profilePhoto),
             backgroundColor: Colors.grey,
@@ -143,34 +153,3 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 }
 
-//  return ListView.builder(
-//       itemCount: suggestionList.length,
-//       itemBuilder: ((context, index) {
-//         User searchedUser = User(
-//             uid: suggestionList[index].uid,
-//             profilePhoto: suggestionList[index].profilePhoto,
-//             name: suggestionList[index].name,
-//             username: suggestionList[index].username);
-
-//         return CustomTile(
-//           mini: false,
-//           onTap: () {;
-//           },
-//           leading: CircleAvatar(
-//             backgroundImage: NetworkImage(searchedUser.profilePhoto),
-//             backgroundColor: Colors.grey,
-//           ),
-//           title: Text(
-//             searchedUser.username,
-//             style: TextStyle(
-//               color: Colors.white,
-//               fontWeight: FontWeight.bold,
-//             ),
-//           ),
-//           subtitle: Text(
-//             searchedUser.name,
-//             style: TextStyle(color: UniversalVariables.greyColor),
-//           ),
-//         );
-//       }),
-//     );
