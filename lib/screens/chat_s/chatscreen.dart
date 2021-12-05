@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:emoji_picker/emoji_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:new_chat/constant/strings.dart';
 import 'package:new_chat/models/massage.dart';
 import 'package:new_chat/models/user.dart';
@@ -22,11 +24,17 @@ class _ChatScreenState extends State<ChatScreen> {
   TextEditingController textFieldController = TextEditingController();
   FirebaseRepository _repository = FirebaseRepository();
 
+  //Trình đk scroll
+  ScrollController _listScrollController = ScrollController();
+
   User sender;
 
   String _currentUserId;
 
+  FocusNode textFieldFocus = FocusNode();
+
   bool isWriting = false;
+  bool showEmojiPicker = false;
 
   @override
   void initState() {  
@@ -46,6 +54,22 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
+  showKeyboard() => textFieldFocus.requestFocus();
+
+  hideKeyboard() => textFieldFocus.unfocus();
+
+  hideEmojiContainer() {
+    setState(() {
+      showEmojiPicker = false;
+    });
+  }
+
+  showEmojiContainer() {
+    setState(() {
+      showEmojiPicker = true;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,8 +81,27 @@ class _ChatScreenState extends State<ChatScreen> {
             child: messageList(),
           ),
           chatControls(),
+          showEmojiPicker ? Container(child: emojiContainer()): Container(),
         ],
       ),
+    );
+  }
+
+   emojiContainer() {
+    return EmojiPicker(
+      bgColor: UniversalVariables.separatorColor,
+      indicatorColor: UniversalVariables.blueColor,
+      rows: 3,
+      columns: 7,
+      onEmojiSelected: (emoji, category) {
+        setState(() {
+          isWriting = true;
+        });
+
+        textFieldController.text = textFieldController.text + emoji.emoji;
+      },
+      recommendKeywords: ["face", "happy", "party", "sad"],
+      numRecommended: 50,
     );
   }
 
@@ -74,8 +117,22 @@ class _ChatScreenState extends State<ChatScreen> {
         if (snapshot.data == null) {
           return Center(child: CircularProgressIndicator());
         }
+        
+      // Cuộn về cuối danh sách khi reload 
+      //(Ví dụ người dùng nhập tin nhắn nó sẽ auto cuộn về vị trí cuối list)
+      //Nhưng cũng gây một số bất tiện vs một số người dùng - tạm thời cm
+      //  SchedulerBinding.instance.addPostFrameCallback((_) {
+      //     _listScrollController.animateTo(
+      //       _listScrollController.position.minScrollExtent,
+      //       duration: Duration(milliseconds: 250),
+      //       curve: Curves.easeInOut,
+      //     );
+      //   });
+
         return ListView.builder(
           padding: EdgeInsets.all(10),
+          reverse: true,
+          controller: _listScrollController,
           itemCount: snapshot.data.documents.length,
           itemBuilder: (context, index) {
             return chatMessageItem(snapshot.data.documents[index]);
@@ -252,7 +309,7 @@ class _ChatScreenState extends State<ChatScreen> {
       setState(() {
         isWriting = false;
       });
-      
+
       textFieldController.text = "";
 
       _repository.addMessageToDb(_message, sender, widget.receiver);
@@ -278,35 +335,54 @@ class _ChatScreenState extends State<ChatScreen> {
             width: 5,
           ),
           Expanded(
-            child: TextField(
-              controller: textFieldController,
-              style: TextStyle(
-                color: Colors.white,
-              ),
-              onChanged: (val) {
-                (val.length > 0 && val.trim() != "")
-                    ? setWritingTo(true)
-                    : setWritingTo(false);
-              },
-              decoration: InputDecoration(
-                hintText: "Type a message",
-                hintStyle: TextStyle(
-                  color: UniversalVariables.greyColor,
-                ),
-                border: OutlineInputBorder(
-                    borderRadius: const BorderRadius.all(
-                      const Radius.circular(50.0),
+            child: Stack(
+              alignment: Alignment.centerRight,
+              children: [
+                TextField(
+                  controller: textFieldController,
+                  focusNode: textFieldFocus,
+                  onTap: () => hideEmojiContainer(),
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                  onChanged: (val) {
+                    (val.length > 0 && val.trim() != "")
+                        ? setWritingTo(true)
+                        : setWritingTo(false);
+                  },
+                  decoration: InputDecoration(
+                    hintText: "Type a message",
+                    hintStyle: TextStyle(
+                      color: UniversalVariables.greyColor,
                     ),
-                    borderSide: BorderSide.none),
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                filled: true,
-                fillColor: UniversalVariables.separatorColor,
-                suffixIcon: GestureDetector(
-                  onTap: () {},
-                  child: Icon(Icons.face),
+                    border: OutlineInputBorder(
+                        borderRadius: const BorderRadius.all(
+                          const Radius.circular(50.0),
+                        ),
+                        borderSide: BorderSide.none),
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                    filled: true,
+                    fillColor: UniversalVariables.separatorColor,
+                  ),
                 ),
-              ),
+                IconButton(
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  onPressed: () {
+                    if (!showEmojiPicker) {
+                      // keyboard is visible
+                      hideKeyboard();
+                      showEmojiContainer();
+                    } else {
+                      //keyboard is hidden
+                      showKeyboard();
+                      hideEmojiContainer();
+                    }
+                  },
+                  icon: Icon(Icons.face),
+                ),
+              ],
             ),
           ),
           isWriting

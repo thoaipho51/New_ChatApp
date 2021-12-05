@@ -50,6 +50,9 @@ dependencies:
   # Thư viện hiệu ứng Gadiant cho appbar
   new_gradient_app_bar: ^0.2.0
 
+  #Thư viện Emoji 
+  emoji_picker: ^0.1.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
