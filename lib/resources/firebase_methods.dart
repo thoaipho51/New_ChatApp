@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:new_chat/models/massage.dart';
 import 'package:new_chat/models/user.dart';
 import 'package:new_chat/utils/ultilities.dart';
 
@@ -78,5 +79,23 @@ class FirebaseMethods {
       }
     }
     return userList;
+  }
+
+  //Xử lý tb
+  Future<void> addMessageToDb(
+      Message message, User sender, User receiver) async {
+    var map = message.toMap();
+
+    await firestore
+        .collection("messages")
+        .document(message.senderId)
+        .collection(message.receiverId)
+        .add(map);
+    
+    return await firestore
+        .collection("messages")
+        .document(message.receiverId)
+        .collection(message.senderId)
+        .add(map);
   }
 }
