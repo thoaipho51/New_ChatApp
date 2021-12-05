@@ -1,15 +1,28 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:new_chat/constant/strings.dart';
 import 'package:new_chat/models/massage.dart';
 import 'package:new_chat/models/user.dart';
+import 'package:new_chat/provider/image_upload_provider.dart';
 import 'package:new_chat/utils/ultilities.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirebaseMethods {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   GoogleSignIn _googleSignIn = GoogleSignIn();
   static final Firestore firestore = Firestore.instance;
+  
+
+  static final CollectionReference _userCollection =
+              _firestore.collection(USERS_COLLECTION);
+
+   static final Firestore _firestore = Firestore.instance;
+  
+
+  StorageReference _storageReference;
 
   //user class
   User user = User();
@@ -18,6 +31,15 @@ class FirebaseMethods {
     FirebaseUser currentUser;
     currentUser = await _auth.currentUser();
     return currentUser;
+  }
+
+  Future<User> getUserDetails() async {
+    FirebaseUser currentUser = await getCurrentUser();
+
+    DocumentSnapshot documentSnapshot =
+        await _userCollection.document(currentUser.uid).get();
+
+    return User.fromMap(documentSnapshot.data);
   }
 
   Future<FirebaseUser> signIn() async {
@@ -82,7 +104,7 @@ class FirebaseMethods {
     return userList;
   }
 
-  //Xử lý tb
+  //Xử lý add tn vào db
   Future<void> addMessageToDb(
       Message message, User sender, User receiver) async {
     var map = message.toMap();
@@ -99,4 +121,61 @@ class FirebaseMethods {
         .collection(message.senderId)
         .add(map);
   }
+
+  // Tải ảnh lên từ DB
+  Future<String> uploadImageToStorage(File imageFile) async {
+    try {
+      _storageReference = FirebaseStorage.instance
+          .ref()
+          .child('${DateTime.now().millisecondsSinceEpoch}');
+      StorageUploadTask storageUploadTask =
+          _storageReference.putFile(imageFile);
+      var url = await (await storageUploadTask.onComplete).ref.getDownloadURL();
+      // print(url);
+      return url;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  void setImageMsg(String url, String receiverId, String senderId) async {
+
+    Message message;
+
+    message = Message.imageMessage(
+        message: "IMAGE",
+        receiverId: receiverId,
+        senderId: senderId,
+        photoUrl: url,
+        timestamp: Timestamp.now(),
+        type: 'image');
+
+        var map = message.toImageMap();
+
+        await firestore
+        .collection(MESSAGES_COLLECTION)
+        .document(message.senderId)
+        .collection(message.receiverId)
+        .add(map);
+    
+        await firestore
+        .collection(MESSAGES_COLLECTION)
+        .document(message.receiverId)
+        .collection(message.senderId)
+        .add(map);
+
+  }
+
+   void uploadImage(File image, String receiverId, String senderId, ImageUploadProvider imageUploadProvider) async {
+
+     //Đặt lại trạng thái và  show nó vs user
+     imageUploadProvider.setToLoading(); //Trạng thái khi ảnh dc load
+
+     String url = await uploadImageToStorage(image);
+
+    // Hide loading
+    imageUploadProvider.setToIdle(); // sau khi ảnh đã load
+
+     setImageMsg(url, receiverId, senderId);
+   }
 }

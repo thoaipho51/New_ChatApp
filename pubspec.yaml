@@ -39,7 +39,7 @@ dependencies:
   # Yêu cầu SDK 19
   # compileSdkVersion ver 31
   cloud_firestore: ^0.12.9
-  permission_handler: ^3.2.1+1
+  permission_handler: ^3.0.0
 
   # Thư viện hổ trợ đăng nhập google
   firebase_auth: '0.11.1+7'
@@ -52,6 +52,25 @@ dependencies:
 
   #Thư viện Emoji 
   emoji_picker: ^0.1.0
+
+  # image_picker
+  image_picker: ^0.6.3+1
+
+  # path provider
+  path_provider: ^1.6.0
+
+  # firebase storage
+  firebase_storage: ^3.1.1
+
+  # provider
+  provider: ^4.0.3
+
+  # cached network image
+  cached_network_image: ^2.0.0
+
+  # agora rtc engine - Thư viện hổ trợ call video
+  agora_rtc_engine: ^1.0.8
+
 
 dev_dependencies:
   flutter_test:

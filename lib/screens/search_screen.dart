@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:new_chat/models/user.dart';
 import 'package:new_chat/resources/firebase_store.dart';
-import 'package:new_chat/screens/chat_s/chatscreen.dart';
+import 'package:new_chat/screens/chat_screen/chatscreen.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:new_chat/utils/universal_variables.dart';
