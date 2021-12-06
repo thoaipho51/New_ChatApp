@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:new_chat/resources/firebase_store.dart';
+import 'package:new_chat/resources/auth_methods.dart';
 import 'package:new_chat/utils/ultilities.dart';
 import 'package:new_chat/utils/universal_variables.dart';
 import 'package:new_chat/widgets/appbar.dart';
@@ -11,9 +11,9 @@ class ChatListScreen extends StatefulWidget {
 }
 
 //global
-final FirebaseRepository _repository = FirebaseRepository();
 
 class _ChatListScreenState extends State<ChatListScreen> {
+  final AuthMethods _authMethods = AuthMethods();
   String currentUserId;
   String initials;
 
@@ -23,7 +23,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
     super.initState();
     // Pt này chịu trách nhiệm lấy thông tin chi tiết của user hiện tại trog fire base
     // trả về dữ liệu người dùng bằng hàm callback
-    _repository.getCurrentUser().then((user) {
+    _authMethods.getCurrentUser().then((user) {
       setState(() {
         currentUserId = user.uid;
         initials = Utils.getInitials(user.displayName);

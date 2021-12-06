@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:new_chat/models/user.dart';
-import 'package:new_chat/resources/firebase_store.dart';
+import 'package:new_chat/resources/auth_methods.dart';
 import 'package:new_chat/screens/chat_screen/chatscreen.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -14,7 +14,7 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
 
-  FirebaseRepository _repository = FirebaseRepository();
+  final AuthMethods _authMethods = AuthMethods();
 
   List<User> userList;
   String query = "";
@@ -25,8 +25,8 @@ class _SearchScreenState extends State<SearchScreen> {
     // TODO: implement initState
     super.initState();
 
-    _repository.getCurrentUser().then((FirebaseUser user) {
-      _repository.fetchAllUsers(user).then((List<User> list) {
+    _authMethods.getCurrentUser().then((FirebaseUser user) {
+      _authMethods.fetchAllUsers(user).then((List<User> list) {
         setState(() {
           userList = list;
         });

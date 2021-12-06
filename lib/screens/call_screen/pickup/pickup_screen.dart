@@ -24,7 +24,7 @@ class PickupScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              "Incoming...",
+              "Đang gọi ...",
               style: TextStyle(
                 fontSize: 30,
               ),

@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:new_chat/models/call.dart';
 import 'package:new_chat/constant/strings.dart';
+import 'package:new_chat/models/call.dart';
 
 class CallMethods {
   final CollectionReference callCollection =

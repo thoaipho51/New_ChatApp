@@ -10,7 +10,7 @@ import 'package:new_chat/enum/view_state.dart';
 import 'package:new_chat/models/massage.dart';
 import 'package:new_chat/models/user.dart';
 import 'package:new_chat/provider/image_upload_provider.dart';
-import 'package:new_chat/resources/firebase_store.dart';
+import 'package:new_chat/resources/auth_methods.dart';
 import 'package:new_chat/screens/chat_screen/widget/cached_image.dart';
 import 'package:new_chat/utils/call_ultilities.dart';
 import 'package:new_chat/utils/permissions.dart';
@@ -20,6 +20,9 @@ import 'package:new_chat/widgets/appbar.dart';
 import 'package:new_chat/widgets/custom_tile.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+
+import 'package:new_chat/resources/chat_methods.dart';
+import 'package:new_chat/resources/storage_methods.dart';
 
 
 class ChatScreen extends StatefulWidget {
@@ -33,7 +36,9 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   TextEditingController textFieldController = TextEditingController();
-  FirebaseRepository _repository = FirebaseRepository();
+  final StorageMethods _storageMethods = StorageMethods();
+  final ChatMethods _chatMethods = ChatMethods();
+  final AuthMethods _authMethods = AuthMethods();
 
   //Trình đk scroll
   ScrollController _listScrollController = ScrollController();
@@ -55,7 +60,7 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
     
     
-    _repository.getCurrentUser().then((user) {
+    _authMethods.getCurrentUser().then((user) {
       _currentUserId = user.uid;
 
       setState(() {
@@ -254,7 +259,7 @@ class _ChatScreenState extends State<ChatScreen> {
   
   pickImage({@required ImageSource source}) async {
       File selectedImage = await Utils.pickImage(source: source);
-      _repository.uploadImage(
+      _storageMethods.uploadImage(
         image: selectedImage,
         receiverId: widget.receiver.uid,
         senderId: _currentUserId,
@@ -360,7 +365,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
       textFieldController.text = "";
 
-      _repository.addMessageToDb(_message, sender, widget.receiver);
+      _chatMethods.addMessageToDb(_message, sender, widget.receiver);
     }
 
     //Widget điều khiển thanh chat

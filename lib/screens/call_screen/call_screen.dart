@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
@@ -72,7 +73,7 @@ class _CallScreenState extends State<CallScreen> {
         // định nghĩa logic
         switch (ds.data) {
           case null:
-            // snapshot là null có nghĩa là cuộc gọi kết thúc và các tài liệu sẽ bị xóa
+            // snapshot là null có nghĩa là cuộc gọi kết thúc và các dữ liệu trong db sẽ bị xóa
             Navigator.pop(context);
             break;
 
@@ -183,7 +184,7 @@ class _CallScreenState extends State<CallScreen> {
     };
   }
 
-  /// Helper function to get list of native views
+  /// trả về list user call
   List<Widget> _getRenderViews() {
     final List<AgoraRenderWidget> list = [
       AgoraRenderWidget(0, local: true, preview: true),
@@ -192,12 +193,16 @@ class _CallScreenState extends State<CallScreen> {
     return list;
   }
 
-  /// Video view wrapper
+  /// Màn hình đơn
   Widget _videoView(view) {
-    return Expanded(child: Container(child: view));
+    return Expanded(
+      child: Container(
+        child: view
+      )
+    );
   }
 
-  /// Video view row wrapper
+  /// Video view row wrapper - chia phân đôi video
   Widget _expandedVideoRow(List<Widget> views) {
     final wrappedViews = views.map<Widget>(_videoView).toList();
     return Expanded(
@@ -217,13 +222,25 @@ class _CallScreenState extends State<CallScreen> {
           children: <Widget>[_videoView(views[0])],
         ));
       case 2:
-        return Container(
-            child: Column(
-          children: <Widget>[
-            _expandedVideoRow([views[0]]),
-            _expandedVideoRow([views[1]])
-          ],
-        ));
+        return  Stack(
+        children: [
+          Center(
+            child: views[1]
+          ),
+          Align(
+            alignment: Alignment.topRight,
+            child: Container(
+              margin: EdgeInsets.only(top: 10,right: 10 ),
+              width: 180,
+              height: 230,
+              child: Center(
+                child: views[0],
+              ),
+              
+            ),
+          ),
+        ],
+      );
       case 3:
         return Container(
             child: Column(
@@ -317,13 +334,14 @@ class _CallScreenState extends State<CallScreen> {
           RawMaterialButton(
             onPressed: _onToggleMute,
             child: Icon(
-              muted ? Icons.mic : Icons.mic_off,
-              color: muted ? Colors.white : Colors.blueAccent,
-              size: 20.0,
+              muted ? CupertinoIcons.mic_off : CupertinoIcons.mic,
+              color: muted ? Colors.red: Colors.white,
+              size: 30.0,
             ),
+            
             shape: CircleBorder(),
             elevation: 2.0,
-            fillColor: muted ? Colors.blueAccent : Colors.white,
+            fillColor:  Colors.black26,
             padding: const EdgeInsets.all(12.0),
           ),
           RawMaterialButton(
@@ -333,7 +351,7 @@ class _CallScreenState extends State<CallScreen> {
             child: Icon(
               Icons.call_end,
               color: Colors.white,
-              size: 35.0,
+              size: 40.0,
             ),
             shape: CircleBorder(),
             elevation: 2.0,
@@ -343,13 +361,13 @@ class _CallScreenState extends State<CallScreen> {
           RawMaterialButton(
             onPressed: _onSwitchCamera,
             child: Icon(
-              Icons.switch_camera,
-              color: Colors.blueAccent,
-              size: 20.0,
+              CupertinoIcons.switch_camera,
+              color: Colors.white,
+              size: 30.0,
             ),
             shape: CircleBorder(),
             elevation: 2.0,
-            fillColor: Colors.white,
+            fillColor: Colors.black26,
             padding: const EdgeInsets.all(12.0),
           )
         ],
