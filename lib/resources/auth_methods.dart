@@ -1,11 +1,13 @@
 import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:new_chat/constant/strings.dart';
+import 'package:new_chat/enum/user_state.dart';
 import 'package:new_chat/models/user.dart';
-import 'package:new_chat/utils/ultilities.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:new_chat/utils/ultilities.dart';
 
 class AuthMethods {
   static final Firestore _firestore = Firestore.instance;
@@ -30,6 +32,17 @@ class AuthMethods {
         await _userCollection.document(currentUser.uid).get();
 
     return User.fromMap(documentSnapshot.data);
+  }
+
+  Future<User> getUserDetailsById(id) async {
+    try {
+      DocumentSnapshot documentSnapshot =
+          await _userCollection.document(id).get();
+      return User.fromMap(documentSnapshot.data);
+    } catch (e) {
+      print(e);
+      return null;
+    }
   }
 
   Future<FirebaseUser> signIn() async {
@@ -86,8 +99,25 @@ class AuthMethods {
     return userList;
   }
 
-  Future<void> signOut() async {
-    await _googleSignIn.signOut();
-    return await _auth.signOut();
+  Future<bool> signOut() async {
+    
+    try {
+      await _googleSignIn.signOut();
+      await _auth.signOut();
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
+
+  void setUserState({@required String userId, @required UserState userState}) {
+    int stateNum = Utils.stateToNum(userState);
+
+    _userCollection.document(userId).updateData({
+      "state": stateNum,
+    });
+  }
+
+  Stream<DocumentSnapshot> getUserStream({@required String uid}) =>
+      _userCollection.document(uid).snapshots();
 }

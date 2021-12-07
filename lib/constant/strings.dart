@@ -7,3 +7,4 @@ const String EMAIL_FIELD = "email";
 const String MESSAGE_TYPE_IMAGE = "image";
 
 const String CALL_COLLECTION = "call";
+const String CONTACTS_COLLECTION = "contacts";

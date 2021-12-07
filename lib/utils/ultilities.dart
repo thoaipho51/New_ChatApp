@@ -3,13 +3,14 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:new_chat/enum/user_state.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:image/image.dart' as Im;
 
 class Utils {
   static String getUsername(String email) {
 
-    return "live:${email.split('@')[0]}";
+    return "Nguồn:${email.split('@')[0]}";
 
   }
 
@@ -38,5 +39,32 @@ class Utils {
 
      return new File('$path/img_$rand.jpg')
       ..writeAsBytesSync(Im.encodeJpg(image, quality: 85));
+  }
+
+  //Chuyển kiểu trạng thái người dùng thành số nguyên
+  static int stateToNum(UserState userState) {
+    switch (userState) {
+      case UserState.Offline:
+        return 0;
+
+      case UserState.Online:
+        return 1;
+
+      default:
+        return 2;
+    }
+  }
+
+  static UserState numToState(int number) {
+     switch (number) {
+      case 0:
+        return UserState.Offline;
+
+      case 1:
+        return UserState.Online;
+
+      default:
+        return UserState.Waiting;
+    }
   }
 }
