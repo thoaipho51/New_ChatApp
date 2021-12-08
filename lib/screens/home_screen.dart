@@ -4,12 +4,14 @@ import 'package:flutter/scheduler.dart';
 import 'package:new_chat/enum/user_state.dart';
 import 'package:new_chat/provider/user_provider.dart';
 import 'package:new_chat/resources/auth_methods.dart';
+import 'package:new_chat/resources/local_db/repository/log_repository.dart';
 import 'package:new_chat/screens/call_screen/pickup/pickup_layout.dart';
-import 'package:new_chat/screens/pagesview/chat_list_screen.dart';
+import 'package:new_chat/screens/pagesview/chats/chat_list_screen.dart';
+import 'package:new_chat/screens/pagesview/chats/logs/log_screen.dart';
 import 'package:new_chat/utils/universal_variables.dart';
 import 'package:provider/provider.dart';
 
-class HomeScreen extends StatefulWidget {
+class  HomeScreen extends StatefulWidget {
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -17,9 +19,11 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   PageController pageController;
   int _page = 0;
-  final AuthMethods _authMethods = AuthMethods();
-
   UserProvider userProvider;
+
+  final AuthMethods _authMethods = AuthMethods();
+  // final LogRepository _logRepository = LogRepository(isHive: true);
+  // final LogRepository _logRepository = LogRepository(isHive: false);
 
   @override
   void initState() {
@@ -31,7 +35,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
       _authMethods.setUserState(
         userId: userProvider.getUser.uid,
-        userState: UserState.Online, 
+        userState: UserState.Online,
+      );
+
+      LogRepository.init(
+        isHive: true,
+        dbName: userProvider.getUser.uid,
       );
     });
 
@@ -102,15 +111,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         backgroundColor: UniversalVariables.blackColor,
         body: PageView(
           children: <Widget>[
-            Container(
-              child: ChatListScreen(),
-            ),
-            Center(
-              child: Text(
-                "Call Logs",
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
+            ChatListScreen(),
+            LogScreen(),
             Center(
                 child: Text(
               "Contact Screen",
